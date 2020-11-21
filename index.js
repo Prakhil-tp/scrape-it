@@ -11,13 +11,14 @@ const csv = require("csvtojson");
     const url = item.lazada;
     const isValid = services.validateUrl(url);
     if (isValid) {
+      const delay = 120 * 1000; // 2 minutes
+      await new Promise((resolve) => setTimeout(resolve, delay));
+
       const html = await services.getHtml(url);
       const lazada = Lazada(html, url);
       const product = lazada.getProduct();
       services.appendToFile(filename, product);
       console.log(product.title);
-      const delay = 120 * 1000; // 2 minutes
-      await new Promise((resolve) => setTimeout(resolve, delay));
     } else {
       services.appendToFile(filename, null);
     }
