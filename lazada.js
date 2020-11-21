@@ -56,10 +56,13 @@ const Lazada = (html, url) => {
     product["chatResponseRate"] = $(sellerInfo[2]).children().last().text();
 
     // authenticity
-    const isAuthentic = $("div[class=delivery-option-item__info]")
+    const isAuthentic = $("div[class=warranty__options]")
+      .children()
+      .first()
       .find("div.delivery-option-item__title")
       .text()
       .trim();
+
     product["authenticity"] =
       isAuthentic === "100% Authentic" ? isAuthentic : "";
 
