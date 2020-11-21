@@ -1,5 +1,5 @@
 const fs = require("fs");
-const UserAgent = require("user-agents");
+//const UserAgent = require("user-agents");
 const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
 
@@ -46,8 +46,8 @@ async function getHtml(url) {
   //const browser = await puppeteer.launch({ headless: false });
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
-  const userAgent = new UserAgent();
-  await page.setUserAgent(userAgent.toString());
+  //const userAgent = new UserAgent();
+  //await page.setUserAgent(userAgent.toString());
   //page.setDefaultNavigationTimeout(0);
   await page.goto(url, { timeout: 0 });
 
