@@ -33,6 +33,6 @@ const csv = require("csvtojson");
     }
   }
 
-  bar1.stop();
+  log.stop();
   console.log("scrape finished !");
 })();
