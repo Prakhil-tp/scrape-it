@@ -1,5 +1,4 @@
 const fs = require("fs");
-//const UserAgent = require("user-agents");
 const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
 
@@ -46,14 +45,27 @@ async function getHtml(url) {
   //const browser = await puppeteer.launch({ headless: false });
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
-  //const userAgent = new UserAgent();
-  //await page.setUserAgent(userAgent.toString());
-  //page.setDefaultNavigationTimeout(0);
-  await page.goto(url, { timeout: 0 });
+  try {
+    await page.goto(url, { waitUntil: "load" });
+    const html = await page.content();
 
-  const html = await page.content();
-  await browser.close();
-  return html;
+    // captcha test
+    const $ = cheerio.load(html);
+    const isCaptcha = $("*").is("h1[class=not-found-text]");
+    if (isCaptcha) throw new Error("Captcha detected");
+
+    await browser.close();
+    return html;
+  } catch (e) {
+    /**
+     * refetching the url after 1 minute
+     */
+    if (browser) await browser.close();
+    console.log(e.message);
+    console.log("Captcha detected!, will retry after 1 minute");
+    await new Promise((resolve) => setTimeout(resolve, 60 * 1000));
+    return getHtml(url);
+  }
 }
 
 /**
