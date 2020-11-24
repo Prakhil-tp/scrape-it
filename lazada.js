@@ -44,7 +44,15 @@ const Lazada = (html, url) => {
       .text();
 
     // promotion
-    product["promotion"] = $("div.promotion-tag-item > div").text();
+    const promotions = [];
+    $("div[class=tag-list]")
+      .children()
+      .each((i, element) => {
+        const text = $(element).text().trim();
+        promotions.push(text);
+      });
+
+    product["promotions"] = promotions.join(" | ");
 
     // soldBy
     product["seller"] = $("div.seller-name__detail > a").first().text();
