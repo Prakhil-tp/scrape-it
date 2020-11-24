@@ -12,6 +12,8 @@ const csv = require("csvtojson");
     return acc.concat(values);
   }, []);
 
+  const log = services.initiateLog(urls.length);
+
   for (let url of urls) {
     const isValid = services.validateUrl(url);
     if (isValid) {
@@ -22,11 +24,15 @@ const csv = require("csvtojson");
       const lazada = Lazada(html, url);
       const product = lazada.getProduct();
       services.appendToFile(filename, product);
-      console.log(product.title);
+
+      //log
+      log.increment({ title: product.title });
     } else {
       services.appendToFile(filename, null);
+      log.increment({ title: "N.A" });
     }
   }
 
+  bar1.stop();
   console.log("scrape finished !");
 })();

@@ -1,6 +1,7 @@
 const fs = require("fs");
 const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
+const cliProgress = require("cli-progress");
 
 /**
  * A helper function to create csv file
@@ -97,4 +98,28 @@ function getDate() {
   return [year, month, day].join("");
 }
 
-module.exports = { appendToFile, getHtml, createFile, getDate, validateUrl };
+/**
+ * Helper function to handle logs on console
+ * @function initiateLog
+ * @returns {object}
+ */
+function initiateLog(total) {
+  const logBar = new cliProgress.SingleBar({
+    format:
+      "Lazada |" +
+      "{bar}" +
+      "| {percentage}% || {value}/{total} links || {title}",
+    hideCursor: true
+  });
+  logBar.start(total, 0, { title: "" });
+  return logBar;
+}
+
+module.exports = {
+  appendToFile,
+  getHtml,
+  createFile,
+  getDate,
+  validateUrl,
+  initiateLog
+};
