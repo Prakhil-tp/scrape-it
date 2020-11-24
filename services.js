@@ -62,8 +62,7 @@ async function getHtml(url) {
      * refetching the url after 1 minute
      */
     if (browser) await browser.close();
-    console.log(e.message);
-    console.log("Captcha detected!, will retry after 1 minute");
+    console.log("\n Captcha detected!, will retry after 1 minute");
     await new Promise((resolve) => setTimeout(resolve, 60 * 1000));
     return getHtml(url);
   }
