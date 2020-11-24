@@ -7,11 +7,15 @@ const csv = require("csvtojson");
   const filename = `./output/output-lazada-${services.getDate()}.csv`;
   services.createFile(filename);
 
-  for (let item of input) {
-    const url = item.lazada;
+  const urls = input.reduce((acc, row) => {
+    const values = Object.values(row);
+    return acc.concat(values);
+  }, []);
+
+  for (let url of urls) {
     const isValid = services.validateUrl(url);
     if (isValid) {
-      const delay = 120 * 1000; // 2 minutes
+      const delay = 60 * 1000; // 2 minutes
       await new Promise((resolve) => setTimeout(resolve, delay));
 
       const html = await services.getHtml(url);
