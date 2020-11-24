@@ -122,8 +122,13 @@ const Lazada = (html, url) => {
       .text();
 
     // product availability
-    const isAvailable = $("*").is("button.add-to-cart-buy-now-btn");
-    product["availability"] = isAvailable;
+    product["availability"] = false;
+    $("div[class=pdp-cart-concern]")
+      .children()
+      .each((i, elem) => {
+        const text = $(elem).text().trim();
+        if (text === "Buy Now") product["availability"] = true;
+      });
 
     return product;
   };
