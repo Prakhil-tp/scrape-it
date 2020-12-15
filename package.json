@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "author": "prakhil-tp <prakhil.tp@gmail.com>",
+  "scripts": {
+    "start": "node index.js"
+  },
   "license": "MIT",
   "dependencies": {
     "cheerio": "^1.0.0-rc.3",

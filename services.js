@@ -2,38 +2,47 @@ const fs = require("fs");
 const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
 const cliProgress = require("cli-progress");
+const Lazada = require("./lazada");
+const Shopee = require("./shopee");
 
 /**
- * A helper function to create csv file
- * @function createFile
- * @param {string} path - file path with filename
- * @returns {undefined}
+ * A closure file operations
+ * @function File
+ * @param {string} path - file path
+ * returns {object}
  */
-function createFile(path) {
-  fs.writeFileSync(
-    path,
-    "LINK, TITLE, CATEGORY, BRAND, PRICE, DISCOUNT, PROMOTION, SELLER, POSITIVE SELLER RATING, SHIP ON TIME, CHAT RESPONSE RATE, AUTHENTICITY, WARRANTY TYPE, WARRANTY PERIOD, STANDARD DELIVERY TIME (Metro manilla), SHIPPING COST (Metro manilla), RATING, 5 STAR RATING COUNT, 4 STAR RATING COUNT, 3 STAR RATING COUNT, 2 STAR RATING COUNT, 1 STAR RATING COUNT, AVAILABILITY"
-  );
-}
+function File(path, platform) {
+  let counter = 0;
 
-/**
- * A helper function to append lines to the csv file.
- * @function appendToFile
- * @param {string} filepath - relative filepath
- * @param {object} data - data to be written.
- * @returns {undefined}
- */
-function appendToFile(filePath, data) {
-  if (!data) {
-    return fs.appendFileSync(filePath, "\n N.A,,,,,,,,,,,,,,,");
-  }
-  let fileText = "\n";
-  const values = Object.values(data);
-  values.forEach((value) => {
-    fileText += `"${value}",`;
-  });
+  const createFile = () => {
+    if (platform === "lazada") {
+      fs.writeFileSync(
+        path,
+        "NO, LINK, TITLE, CATEGORY, BRAND, PRICE, DISCOUNT, PROMOTION, SELLER, POSITIVE SELLER RATING, SHIP ON TIME, CHAT RESPONSE RATE, AUTHENTICITY, WARRANTY TYPE, WARRANTY PERIOD, STANDARD DELIVERY TIME (Metro manilla), SHIPPING COST (Metro manilla), RATING, 5 STAR RATING COUNT, 4 STAR RATING COUNT, 3 STAR RATING COUNT, 2 STAR RATING COUNT, 1 STAR RATING COUNT, AVAILABILITY"
+      );
+    } else {
+      fs.writeFileSync(
+        path,
+        "NO, LINK, TITLE, CATEGORY, BRAND, SHOP, BEST BEFORE, STOCK AVAILABLE, PRICE, DISCOUNT, PROMO, BUNDLE DEAL RECOMMENDATION, RATINGS COUNT, # OF RATINGS, SOLD, FREE SHIPPING WITH ORDER OF XX, SHIPPING FEE, SHOP RATINGS, PRODUCTS COUNT, RESPONSE RATE, RESPONSE TIME, FOLLOWERS, SHOP VOUCHER"
+      );
+    }
+  };
 
-  fs.appendFileSync(filePath, fileText, { encoding: "utf8" });
+  const appendToFile = (data) => {
+    if (!data) {
+      return fs.appendFileSync(path, `\n ${++counter},N.A,,,,,,,,,,,,,,,`);
+    }
+    let fileText = `\n ${++counter},`;
+    const values = Object.values(data);
+    values.forEach((value) => {
+      fileText += `"${value}",`;
+    });
+
+    fs.appendFileSync(path, fileText, { encoding: "utf8" });
+  };
+
+  createFile();
+  return { appendToFile };
 }
 
 /**
@@ -42,30 +51,36 @@ function appendToFile(filePath, data) {
  * @param {string} - url
  * @returns {string} - html as string.
  */
-async function getHtml(url) {
+async function getHtml(url, platform) {
   //const browser = await puppeteer.launch({ headless: false });
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
-  try {
-    await page.goto(url, { waitUntil: "load" });
-    const html = await page.content();
+  let html = "";
 
-    // captcha test
-    const $ = cheerio.load(html);
-    const isCaptcha = $("*").is("h1[class=not-found-text]");
-    if (isCaptcha) throw new Error("Captcha detected");
-
-    await browser.close();
-    return html;
-  } catch (e) {
-    /**
-     * refetching the url after 1 minute
-     */
-    if (browser) await browser.close();
-    console.log("\n Captcha detected!, will retry after 1 minute");
-    await new Promise((resolve) => setTimeout(resolve, 60 * 1000));
-    return getHtml(url);
+  if (platform === "lazada") {
+    try {
+      await page.goto(url, { waitUntil: "load", timeout: 40000 });
+      html = await page.content();
+      // captcha test
+      const $ = cheerio.load(html);
+      const isCaptcha = $("*").is("h1[class=not-found-text]");
+      if (isCaptcha) throw new Error("Captcha detected");
+    } catch (e) {
+      if (browser) await browser.close();
+      console.log("\n Captcha detected!, will retry after 1 minute");
+      await new Promise((resolve) => setTimeout(resolve, 60 * 1000));
+      return getHtml(url, platform);
+    }
+  } else {
+    try {
+      await page.goto(url, { waitUntil: "networkidle0", timeout: 30000 });
+    } catch (e) {
+      console.log("\n ", e.message);
+    }
+    html = await page.content();
   }
+  await browser.close();
+  return html;
 }
 
 /**
@@ -102,10 +117,10 @@ function getDate() {
  * @function initiateLog
  * @returns {object}
  */
-function initiateLog(total) {
+function initiateLog(total, platform) {
   const logBar = new cliProgress.SingleBar({
     format:
-      "Lazada |" +
+      `${platform} |` +
       "{bar}" +
       "| {percentage}% || {value}/{total} links || {title}",
     hideCursor: true
@@ -114,11 +129,29 @@ function initiateLog(total) {
   return logBar;
 }
 
+async function getProduct(platform, url) {
+  const html = await getHtml(url, platform);
+  switch (platform) {
+    case "lazada": {
+      const lazada = Lazada(html, url);
+      const product = lazada.getProduct();
+      return product;
+    }
+    case "shopee": {
+      const shopee = Shopee(html, url);
+      const product = shopee.getProduct();
+      return product;
+    }
+    default:
+      return "invalid platform";
+  }
+}
+
 module.exports = {
-  appendToFile,
   getHtml,
-  createFile,
   getDate,
   validateUrl,
-  initiateLog
+  initiateLog,
+  getProduct,
+  File
 };
