@@ -23,10 +23,10 @@ const Shopee = (html, url) => {
     product["category"] = $("a[class=JFOy4z]").last().text();
 
     //3. Brand name
-    product["Brand"] = $("a[class=_2H-513]").first().text();
+    product["brand"] = $("a[class=_2H-513]").first().text();
 
     //4. Shop name
-    product["Shop"] = $("div[class=_3Lybjn]").text();
+    product["shop"] = $("div[class=_3Lybjn]").text();
 
     //5. Best before
     let BestBeforeLabel = $("div[class=_2aZyWI]")
@@ -35,7 +35,7 @@ const Shopee = (html, url) => {
       .find("label")
       .text();
     if (BestBeforeLabel === "Best Before") {
-      product["Best_Before"] = $("div[class=_2aZyWI]")
+      product["best_before"] = $("div[class=_2aZyWI]")
         .find("div")
         .eq(3)
         .find("div")
@@ -48,13 +48,13 @@ const Shopee = (html, url) => {
         .find("label")
         .text();
       if (BestBeforeLabel === "Best Before") {
-        product["Best_Before"] = $("div[class=_2aZyWI]")
+        product["best_before"] = $("div[class=_2aZyWI]")
           .find("div")
           .eq(2)
           .find("div")
           .text();
       } else {
-        product["Best_Before"] = "";
+        product["best_before"] = "";
       }
     }
 
@@ -64,69 +64,70 @@ const Shopee = (html, url) => {
       .each((i, elem) => {
         const key = $(elem).find("label").text().trim();
         if (key === "Stock") {
-          product["Stock_available"] = $(elem).find("div").text();
+          product["stock_available"] = $(elem).find("div").text();
         }
       });
 
     //7. Price
-    product["Price"] = $("div[class=_3n5NQx]").first().text();
+    product["price"] = $("div[class=_3n5NQx]").first().text();
 
     //8. Discount
-    product["Discount"] = $("div[class=MITExd]").text();
-
-    //9. Promo
-    product["Promo"] = $("span.voucher-promo-value").text();
+    product["discount"] = $("div[class=MITExd]").text();
 
     //10..Bundle deal recommendation
-    product["Bundle_deal_recommendation"] = $("div._3MJQdO.-fk5U-")
+    product["bundle_deal_recommendation"] = $("div._3MJQdO.-fk5U-")
       .first()
       .text();
 
     //11. Rating count
-    product["Ratings_count"] = $("div.flex.M3KjhJ").first().text();
+    product["rating"] = $("div.flex.M3KjhJ").first().text();
 
     //12. Number of ratings
-    product["#_of_ratings"] = $("div[class=_3Oj5_n]").text();
+    product["num_of_ratings"] = $("div[class=_3Oj5_n]").text();
 
     //13. Sold
-    product["Sold"] = $("div[class=_22sp0A]").text();
+    product["sold"] = $("div[class=_22sp0A]").text();
 
     //14. Free shipping with order of xx
-    product["Free_shipping_with_order_of_xx"] = $("div._2bOZ3_").last().text();
+    product["free_shipping_with_order_of_xx"] = $("div._2bOZ3_").last().text();
 
     //15. Shipping fee
-    product["Shipping_fee"] = $("div.flex.items-center.BtHdNz").first().text();
+    product["shipping_cost"] = $("div.flex.items-center.BtHdNz").first().text();
 
     //16. Shop ratings
-    product["Shop_Ratings"] = $("div[class=_3mK1I2]")
+    product["shop_ratings"] = $("div[class=_3mK1I2]")
       .find("span")
       .first()
       .text();
 
     //16.1 Products count
-    product["Products_count"] = $("div[class=_3mK1I2]")
+    product["products_count"] = $("div[class=_3mK1I2]")
       .find("span")
       .eq(1)
       .text();
 
     //16.2 Response rate
-    product["Response_rate"] = $("div[class=_3mK1I2]")
+    product["response_rate"] = $("div[class=_3mK1I2]")
       .find("span")
       .eq(2)
       .text();
 
     //16.3 Response Time
-    product["Response_Time"] = $("div[class=_3mK1I2]")
+    product["response_time"] = $("div[class=_3mK1I2]")
       .find("span")
       .eq(3)
       .text();
 
     //16.4 Followers
-    product["Followers"] = $("div[class=_3mK1I2]").find("span").eq(5).text();
+    product["followers"] = $("div[class=_3mK1I2]").find("span").eq(5).text();
 
     //16.5 Shop voucher
-    product["Shop_voucher"] = $("span.voucher-promo-value").text();
-
+    product["shop_voucher"] = $("span.voucher-promo-value").text();
+    let percentageOff = $("div.mini-vouchers__vouchers").text();
+    if (percentageOff.length > 0) {
+      product["shop_voucher"] = $("div.mini-vouchers__vouchers").text();
+    }
+    product["promo"] = product.shop_voucher;
     return product;
   };
 
