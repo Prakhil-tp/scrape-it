@@ -59,9 +59,12 @@ const Lazada = (html, url) => {
 
     // seller info
     const sellerInfo = $("div[class=pdp-seller-info-pc]").children();
-    product["positiveSellerRating"] = $(sellerInfo[0]).children().last().text();
-    product["shipOnTime"] = $(sellerInfo[1]).children().last().text();
-    product["chatResponseRate"] = $(sellerInfo[2]).children().last().text();
+    product["positive_seller_rating"] = $(sellerInfo[0])
+      .children()
+      .last()
+      .text();
+    product["ship_on_time"] = $(sellerInfo[1]).children().last().text();
+    product["chat_response_rate"] = $(sellerInfo[2]).children().last().text();
 
     // authenticity
     const isAuthentic = $("div[class=warranty__options]")
@@ -75,24 +78,24 @@ const Lazada = (html, url) => {
       isAuthentic === "100% Authentic" ? isAuthentic : "";
 
     // Warranty
-    product["warrantyType"] = "";
-    product["warrantyPeriod"] = "";
+    product["warranty_type"] = "";
+    product["warranty_period"] = "";
     $("div[class=pdp-general-features] > ul")
       .children()
       .each((i, elem) => {
         const key = $(elem).find("span").text().trim();
         if (key === "Warranty Type") {
-          product["warrantyType"] = $(elem).find("div.key-value").text();
+          product["warranty_type"] = $(elem).find("div.key-value").text();
         } else if (key === "Warranty Period") {
-          product["warrantyPeriod"] = $(elem).find("div.key-value").text();
+          product["warranty_period"] = $(elem).find("div.key-value").text();
         }
       });
 
     // Standard delivery
-    product["standardDeliveryTime"] = $("div[class=delivery]")
+    product["standard_delivery_time"] = $("div[class=delivery]")
       .find("div[class=delivery-option-item__time]")
       .text();
-    product["shippingCost"] = $("div[class=delivery]")
+    product["shipping_cost"] = $("div[class=delivery]")
       .find("div[class=delivery-option-item__shipping-fee]")
       .text();
 
@@ -101,29 +104,19 @@ const Lazada = (html, url) => {
 
     // rating count
     const ratingList = $("div.mod-rating").find("div.detail > ul").children();
-    product["fiveStarRatingCount"] = $(ratingList[0])
-      .find("span.percent")
-      .text();
+    product["five_star_count"] = $(ratingList[0]).find("span.percent").text();
 
-    product["fourStarRatingCount"] = $(ratingList[1])
-      .find("span.percent")
-      .text();
+    product["four_star_count"] = $(ratingList[1]).find("span.percent").text();
 
-    product["threeStarRatingCount"] = $(ratingList[2])
-      .find("span.percent")
-      .text();
+    product["three_star_count"] = $(ratingList[2]).find("span.percent").text();
 
-    product["twoStarRatingCount"] = $(ratingList[3])
-      .find("span.percent")
-      .text();
+    product["two_star_count"] = $(ratingList[3]).find("span.percent").text();
 
-    product["oneStarRatingCount"] = $(ratingList[4])
-      .find("span.percent")
-      .text();
+    product["one_star_count"] = $(ratingList[4]).find("span.percent").text();
 
     // product availability
     const isOutOfStock = $("*").is("span[class=quantity-content-warning]");
-    product["availability"] = !isOutOfStock;
+    product["availability"] = !!product.title && !isOutOfStock;
 
     return product;
   };
